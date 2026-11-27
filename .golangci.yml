@@ -1,0 +1,29 @@
+version: "2"
+linters:
+  default: standard
+  disable:
+    - errcheck
+  enable:
+    - errname
+    - forbidigo
+    - gocritic
+    - goheader
+    - loggercheck
+    - misspell
+    - perfsprint
+    - sqlclosecheck
+    - staticcheck
+    - whitespace
+  settings:
+    forbidigo:
+      analyze-types: true
+      forbid:
+        - pattern: ^goquery\.Selection\.(ReplaceWith|Append|Prepend|Before|After|Set|Wrap|WrapAll|WrapInner)Html$
+          pkg: ^github\.com/PuerkitoBio/goquery$
+          msg: parses an HTML string and panics on parse errors; build *html.Node values and use the *Nodes variant
+    loggercheck:
+      slog: true
+    goheader:
+      template: |-
+        SPDX-FileCopyrightText: Copyright The Miniflux Authors. All rights reserved.
+        SPDX-License-Identifier: Apache-2.0

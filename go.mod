@@ -1,32 +1,49 @@
-module miniflux.app
+module miniflux.app/v2
 
-// +heroku goVersion go1.19
+// When changing version here don't forget to also upgrade CONTRIBUTING.md
+
+// +heroku goVersion go1.26
+go 1.26.0
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.0
-	github.com/coreos/go-oidc v2.2.1+incompatible
-	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible
-	github.com/gorilla/mux v1.8.0
-	github.com/lib/pq v1.10.7
-	github.com/matrix-org/gomatrix v0.0.0-20220926102614-ceba4d9f7530
-	github.com/prometheus/client_golang v1.14.0
-	github.com/rylans/getlang v0.0.0-20201227074721-9e7f44ff8aa0
-	github.com/tdewolff/minify/v2 v2.12.4
-	github.com/yuin/goldmark v1.5.3
-	golang.org/x/crypto v0.5.0
-	golang.org/x/net v0.5.0
-	golang.org/x/oauth2 v0.4.0
-	golang.org/x/term v0.4.0
-	mvdan.cc/xurls/v2 v2.4.0
+	github.com/PuerkitoBio/goquery v1.14.0
+	github.com/andybalholm/brotli v1.3.0
+	github.com/andybalholm/cascadia v1.3.5
+	github.com/coreos/go-oidc/v3 v3.21.0
+	github.com/go-webauthn/webauthn v0.18.2
+	github.com/lib/pq v1.12.3
+	github.com/prometheus/client_golang v1.25.0
+	github.com/tdewolff/minify/v2 v2.25.0
+	golang.org/x/crypto v0.59.0
+	golang.org/x/image v0.48.0
+	golang.org/x/net v0.63.0
+	golang.org/x/oauth2 v0.38.0
+	golang.org/x/term v0.48.0
+	golang.org/x/text v0.44.0
 )
 
 require (
-	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
-	github.com/pquerna/cachecontrol v0.1.0 // indirect
-	github.com/stretchr/testify v1.7.0 // indirect
-	github.com/technoweenie/multipartstreamer v1.0.1 // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
+	github.com/go-webauthn/x v0.3.1 // indirect
+	github.com/golang-jwt/jwt/v5 v5.3.1 // indirect
+	github.com/google/go-tpm v0.9.8 // indirect
 )
 
-go 1.19
+require (
+	github.com/beorn7/perks v1.0.1 // indirect
+	github.com/cespare/xxhash/v2 v2.3.0 // indirect
+	github.com/fxamacker/cbor/v2 v2.10.0 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.7 // indirect
+	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
+	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/pandatix/go-abnf v0.5.5 // indirect
+	github.com/philhofer/fwd v1.2.1 // indirect
+	github.com/prometheus/client_model v0.6.3 // indirect
+	github.com/prometheus/common v0.73.1 // indirect
+	github.com/prometheus/procfs v0.23.0 // indirect
+	github.com/tdewolff/parse/v2 v2.25.0 // indirect
+	github.com/tinylib/msgp v1.6.5 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
+	golang.org/x/sys v0.50.0 // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
+)

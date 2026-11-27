@@ -1,15 +1,15 @@
 Miniflux API Client
 ===================
 
-[![PkgGoDev](https://pkg.go.dev/badge/miniflux.app/client)](https://pkg.go.dev/miniflux.app/client)
+[![PkgGoDev](https://pkg.go.dev/badge/miniflux.app/v2/client)](https://pkg.go.dev/miniflux.app/v2/client)
 
-Client library for Miniflux REST API.
+Go client for the Miniflux REST API. It supports API tokens or basic authentication and mirrors the server endpoints closely.
 
 Installation
 ------------
 
 ```bash
-go get -u miniflux.app/client
+go get -u miniflux.app/v2/client
 ```
 
 Example
@@ -22,15 +22,15 @@ import (
 	"fmt"
 	"os"
 
-	miniflux "miniflux.app/client"
+	miniflux "miniflux.app/v2/client"
 )
 
 func main() {
     // Authentication with username/password:
-    client := miniflux.New("https://api.example.org", "admin", "secret")
+    client := miniflux.NewClient("https://api.example.org", "admin", "secret")
 
     // Authentication with an API Key:
-    client := miniflux.New("https://api.example.org", "my-secret-token")
+    client := miniflux.NewClient("https://api.example.org", "my-secret-token")
 
     // Fetch all feeds.
     feeds, err := client.Feeds()

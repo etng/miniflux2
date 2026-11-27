@@ -1,11 +1,11 @@
-// Copyright 2018 Frédéric Guillot. All rights reserved.
-// Use of this source code is governed by the Apache 2.0
-// license that can be found in the LICENSE file.
+// SPDX-FileCopyrightText: Copyright The Miniflux Authors. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
-package client // import "miniflux.app/client"
+package client // import "miniflux.app/v2/client"
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,7 +18,7 @@ import (
 
 const (
 	userAgent      = "Miniflux Client Library"
-	defaultTimeout = 80
+	defaultTimeout = 80 * time.Second
 )
 
 // List of exposed errors.
@@ -27,6 +27,8 @@ var (
 	ErrForbidden     = errors.New("miniflux: access forbidden")
 	ErrServerError   = errors.New("miniflux: internal server error")
 	ErrNotFound      = errors.New("miniflux: resource not found")
+	ErrBadRequest    = errors.New("miniflux: bad request")
+	ErrEmptyEndpoint = errors.New("miniflux: empty endpoint provided")
 )
 
 type errorResponse struct {
@@ -38,30 +40,39 @@ type request struct {
 	username string
 	password string
 	apiKey   string
+	client   *http.Client
 }
 
-func (r *request) Get(path string) (io.ReadCloser, error) {
-	return r.execute(http.MethodGet, path, nil)
+func (r *request) Get(ctx context.Context, path string) (io.ReadCloser, error) {
+	return r.execute(ctx, http.MethodGet, path, nil)
 }
 
-func (r *request) Post(path string, data interface{}) (io.ReadCloser, error) {
-	return r.execute(http.MethodPost, path, data)
+func (r *request) Post(ctx context.Context, path string, data any) (io.ReadCloser, error) {
+	return r.execute(ctx, http.MethodPost, path, data)
 }
 
-func (r *request) PostFile(path string, f io.ReadCloser) (io.ReadCloser, error) {
-	return r.execute(http.MethodPost, path, f)
+func (r *request) PostFile(ctx context.Context, path string, f io.ReadCloser) (io.ReadCloser, error) {
+	return r.execute(ctx, http.MethodPost, path, f)
 }
 
-func (r *request) Put(path string, data interface{}) (io.ReadCloser, error) {
-	return r.execute(http.MethodPut, path, data)
+func (r *request) Put(ctx context.Context, path string, data any) (io.ReadCloser, error) {
+	return r.execute(ctx, http.MethodPut, path, data)
 }
 
-func (r *request) Delete(path string) error {
-	_, err := r.execute(http.MethodDelete, path, nil)
+func (r *request) Delete(ctx context.Context, path string) error {
+	_, err := r.execute(ctx, http.MethodDelete, path, nil)
 	return err
 }
 
-func (r *request) execute(method, path string, data interface{}) (io.ReadCloser, error) {
+func (r *request) execute(
+	ctx context.Context,
+	method string,
+	path string,
+	data any,
+) (io.ReadCloser, error) {
+	if r.endpoint == "" {
+		return nil, ErrEmptyEndpoint
+	}
 	if r.endpoint[len(r.endpoint)-1:] == "/" {
 		r.endpoint = r.endpoint[:len(r.endpoint)-1]
 	}
@@ -71,11 +82,12 @@ func (r *request) execute(method, path string, data interface{}) (io.ReadCloser,
 		return nil, err
 	}
 
-	request := &http.Request{
-		URL:    u,
-		Method: method,
-		Header: r.buildHeaders(),
+	request, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
+	if err != nil {
+		return nil, err
 	}
+
+	request.Header = r.buildHeaders()
 
 	if r.username != "" && r.password != "" {
 		request.SetBasicAuth(r.username, r.password)
@@ -90,7 +102,7 @@ func (r *request) execute(method, path string, data interface{}) (io.ReadCloser,
 		}
 	}
 
-	client := r.buildClient()
+	client := r.client
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
@@ -125,10 +137,10 @@ func (r *request) execute(method, path string, data interface{}) (io.ReadCloser,
 		var resp errorResponse
 		decoder := json.NewDecoder(response.Body)
 		if err := decoder.Decode(&resp); err != nil {
-			return nil, fmt.Errorf("miniflux: bad request error (%v)", err)
+			return nil, fmt.Errorf("%w (%v)", ErrBadRequest, err)
 		}
 
-		return nil, fmt.Errorf("miniflux: bad request (%s)", resp.ErrorMessage)
+		return nil, fmt.Errorf("%w (%s)", ErrBadRequest, resp.ErrorMessage)
 	}
 
 	if response.StatusCode > 400 {
@@ -137,12 +149,6 @@ func (r *request) execute(method, path string, data interface{}) (io.ReadCloser,
 	}
 
 	return response.Body, nil
-}
-
-func (r *request) buildClient() http.Client {
-	return http.Client{
-		Timeout: time.Duration(defaultTimeout * time.Second),
-	}
 }
 
 func (r *request) buildHeaders() http.Header {
@@ -156,7 +162,7 @@ func (r *request) buildHeaders() http.Header {
 	return headers
 }
 
-func (r *request) toJSON(v interface{}) []byte {
+func (r *request) toJSON(v any) []byte {
 	b, err := json.Marshal(v)
 	if err != nil {
 		log.Println("Unable to convert interface to JSON:", err)

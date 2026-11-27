@@ -11,13 +11,16 @@ Source1: miniflux.service
 Source2: miniflux.conf
 Source3: miniflux.1
 Source4: LICENSE
-Source5: ChangeLog
 BuildRoot: %{_topdir}/BUILD/%{name}-%{version}-%{release}
 BuildArch: x86_64
 Requires(pre): shadow-utils
 
-%{?systemd_requires}
-BuildRequires: systemd
+%{?systemd_ordering}
+
+AutoReqProv: no
+
+%define __strip /bin/true
+%define __os_install_post %{nil}
 
 %description
 %{summary}
@@ -29,7 +32,6 @@ install -D -m 644 %{SOURCE1} %{buildroot}%{_unitdir}/miniflux.service
 install -D -m 600 %{SOURCE2} %{buildroot}%{_sysconfdir}/miniflux.conf
 install -D -m 644 %{SOURCE3} %{buildroot}%{_mandir}/man1/miniflux.1
 install -D -m 644 %{SOURCE4} %{buildroot}%{_docdir}/miniflux/LICENSE
-install -D -m 644 %{SOURCE5} %{buildroot}%{_docdir}/miniflux/ChangeLog
 
 %files
 %defattr(755,root,root)
@@ -57,5 +59,3 @@ exit 0
 
 %postun
 %systemd_postun_with_restart miniflux.service
-
-%changelog
